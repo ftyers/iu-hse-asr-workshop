@@ -21,7 +21,7 @@ import collections
 class CTCDecoder:
 	
 	def __init__(self, alphabet):
-		
+		self.alphabet = alphabet		
 		self.NEG_INF = -float("inf")
 	
 	def make_new_beam(self):
@@ -63,7 +63,7 @@ class CTCDecoder:
 		for t in range(T): # Loop over time
 	
 			# A default dictionary to store the next step candidates.
-			next_beam = make_new_beam()
+			next_beam = self.make_new_beam()
 	
 			for s in range(S): # Loop over vocab
 				p = probs[t, s]
@@ -77,7 +77,7 @@ class CTCDecoder:
 					# Only the probability of ending in blank gets updated.
 					if s == blank:
 						n_p_b, n_p_nb = next_beam[prefix]
-						n_p_b = logsumexp(n_p_b, p_b + p, p_nb + p)
+						n_p_b = self.logsumexp(n_p_b, p_b + p, p_nb + p)
 						next_beam[prefix] = (n_p_b, n_p_nb)
 						continue
 	
@@ -88,12 +88,12 @@ class CTCDecoder:
 					n_prefix = prefix + (s,)
 					n_p_b, n_p_nb = next_beam[n_prefix]
 					if s != end_t:
-						n_p_nb = logsumexp(n_p_nb, p_b + p, p_nb + p)
+						n_p_nb = self.logsumexp(n_p_nb, p_b + p, p_nb + p)
 					else:
 						# We don't include the previous probability of not ending
 						# in blank (p_nb) if s is repeated at the end. The CTC
 						# algorithm merges characters not separated by a blank.
-						n_p_nb = logsumexp(n_p_nb, p_b + p)
+						n_p_nb = self.logsumexp(n_p_nb, p_b + p)
 						
 					# *NB* this would be a good place to include an LM score.
 					next_beam[n_prefix] = (n_p_b, n_p_nb)
@@ -102,29 +102,34 @@ class CTCDecoder:
 					# prefix. This is the merging case.
 					if s == end_t:
 						n_p_b, n_p_nb = next_beam[prefix]
-						n_p_nb = logsumexp(n_p_nb, p_nb + p)
+						n_p_nb = self.logsumexp(n_p_nb, p_nb + p)
 						next_beam[prefix] = (n_p_b, n_p_nb)
 	
 			# Sort and trim the beam before moving on to the
 			# next time-step.
 			beam = sorted(next_beam.items(),
-							key=lambda x : logsumexp(*x[1]),
+							key=lambda x : self.logsumexp(*x[1]),
 							reverse=True)
 			beam = beam[:beam_size]
 	
 		best = beam[0]
-		return best[0], -logsumexp(*best[1])
+		return best[0], -self.logsumexp(*best[1])
 	
 	def test(self):
-		np.random.seed(3)
+		#np.random.seed(3)
 	
 		time = 50
-		output_dim = 20
+		output_dim = len(self.alphabet)
 	
 		probs = np.random.rand(time, output_dim)
 		probs = probs / np.sum(probs, axis=1, keepdims=True)
 	
-		labels, score = decode(probs)
+		labels, score = self.decode(probs)
+		print(labels)
+		print(''.join([self.alphabet[i] for i in labels]))
 		print("Score {:.3f}".format(score))
 
-if 
+if __name__ == "__main__":
+	V = [' ', 'a', 'e', 'b', 'c']
+	dec = CTCDecoder(V)
+	dec.test()
