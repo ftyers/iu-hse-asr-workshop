@@ -8,12 +8,14 @@ Sunday the 29th November, 2020
 
 # Preparation / what to install
 
-- pytorch
+Most of these can be installed using `pip`:
+
+- pandas
+- torch
 - torchaudio
 - librosa 
 - numpy
 - jupyter
-- https://github.com/parlance/ctcdecode
 
 # Schedule
 
@@ -26,3 +28,10 @@ Sunday the 29th November, 2020
 * 14:00 - 14:15 Discussion and break
 * 14:15 - 15:00 5. Language modelling (Nils)
 * 15:00 - 15:15 Wrapping up
+
+# Notebooks
+
+* [Audio processing](notebooks/Audio_Processing.ipynb)
+* [Acoustic models](notebooks/Acoustic_Model.ipynb)
+* [Decoding](notebooks/CTC_Decoder.ipynb)
+* [Language modelling](notebooks/Language_Modelling.ipynb)
