@@ -8,6 +8,7 @@ Sunday the 29th November, 2020
 
 # Preparation / what to install
 
+- pandas
 - pytorch
 - torchaudio
 - librosa 
