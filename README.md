@@ -27,3 +27,8 @@ Sunday the 29th November, 2020
 * 14:00 - 14:15 Discussion and break
 * 14:15 - 15:00 5. Language modelling (Nils)
 * 15:00 - 15:15 Wrapping up
+
+# Notebooks
+
+* [Acoustic models](Acoustic_Model.ipynb)
+* [Decoding](CTC_Decoder.ipynb)
