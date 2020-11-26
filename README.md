@@ -8,13 +8,14 @@ Sunday the 29th November, 2020
 
 # Preparation / what to install
 
+Most of these can be installed using `pip`:
+
 - pandas
-- pytorch
+- torch
 - torchaudio
 - librosa 
 - numpy
 - jupyter
-- https://github.com/parlance/ctcdecode
 
 # Schedule
 
