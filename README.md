@@ -30,5 +30,5 @@ Sunday the 29th November, 2020
 
 # Notebooks
 
-* [Acoustic_Model.ipynb](Acoustic models)
-* [CTC_Decoder.ipynb](Decoding)
+* [Acoustic models](Acoustic_Model.ipynb)
+* [Decoding](CTC_Decoder.ipynb)
