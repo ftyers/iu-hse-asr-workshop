@@ -22,18 +22,5 @@ def STFT(x, win_length, hop_length, fs):
     spec = librosa.stft(x, n_fft=n_fft, hop_length=hop_length)
     return np.abs(spec)
 
-audio, fs = librosa.load('../audio/OSR_us_000_0010_8k.wav')
-sp = STFT(x=audio, win_length=25, hop_length=10, fs=fs)
-
-plt.figure(figsize=(15, 8))
-plt.ylabel('Frequency')
-plt.xlabel('Frames')
-plt.imshow(sp[:25,:], origin='lowest', aspect='auto')
-
-audio, fs = librosa.load('../audio/OSR_us_000_0034_8k.wav')
-sp = STFT(x=audio, win_length=25, hop_length=10, fs=fs)
-frames_ind = np.arange(sp.shape[1], 25) 
-plt.figure(figsize=(15, 8))
-plt.ylabel('Frequency')
-plt.xlabel('Frames')
-plt.imshow(sp[:20,:], origin='lowest', aspect='auto')
+#audio, fs = librosa.load('../audio/OSR_us_000_0010_8k.wav')
+#sp = STFT(x=audio, win_length=25, hop_length=10, fs=fs)
