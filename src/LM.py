@@ -203,6 +203,7 @@ def train(filename, num_layers, dropout, emb_size,
         # save checkpoint
         best_model_path = checkpoint_path
         save_ckp(checkpoint, False, checkpoint_path, best_model_path)
+	return model, token_to_idx, idx_to_token
 
 def save_ckp(state, is_best, checkpoint_path, best_model_path):
     """
@@ -341,6 +342,6 @@ def score(model, token_to_idx, idx_to_token, seed_phrase):
 if __name__ == "__main__":
 	logging.root.setLevel(logging.NOTSET)
 
-	m = train("../data/transcripts.txt", num_layers=2, dropout=0.05, emb_size=100, hidden_size=200, num_epochs=5, batch_size=10, learning_rate=0.01)
-	s = score(m, token_to_idx, idx_to_token, "десять")
+	model, token_to_idx, idx_to_token = train("../data/transcripts.txt", num_layers=2, dropout=0.05, emb_size=100, hidden_size=200, num_epochs=5, batch_size=10, learning_rate=0.01)
+	s = score(model, token_to_idx, idx_to_token, "десять")
 	print(s)	
