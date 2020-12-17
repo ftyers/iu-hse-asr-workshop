@@ -1,6 +1,6 @@
 # Speech recognition workshop
 
-Sunday the 6th December, 2020
+Sunday the 20th December, 2020
 
 * 09:00-13:15 (UTC-8)
 * 11:00-15:15 (UTC-5)
