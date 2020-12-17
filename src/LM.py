@@ -342,5 +342,5 @@ if __name__ == "__main__":
 	logging.root.setLevel(logging.NOTSET)
 
 	m = train("../data/transcripts.txt", num_layers=2, dropout=0.05, emb_size=100, hidden_size=200, num_epochs=5, batch_size=10, learning_rate=0.01)
-	s = score(m, "десять")
+	s = score(m, token_to_idx, idx_to_token, "десять")
 	print(s)	
