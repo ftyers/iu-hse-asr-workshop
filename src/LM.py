@@ -1,3 +1,4 @@
+import sys 
 import numpy as np
 from tqdm import tqdm
 
@@ -203,7 +204,7 @@ def train(filename, num_layers, dropout, emb_size,
         # save checkpoint
         best_model_path = checkpoint_path
         save_ckp(checkpoint, False, checkpoint_path, best_model_path)
-	return model, token_to_idx, idx_to_token
+        return model, token_to_idx, idx_to_token
 
 def save_ckp(state, is_best, checkpoint_path, best_model_path):
     """
