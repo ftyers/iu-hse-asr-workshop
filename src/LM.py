@@ -28,7 +28,7 @@ class CharRNN(nn.Module):
         pad_id (int): token_id of the padding token.
     """
 
-    def __init__(self, num_layers, rnn_type, n_tokens, emb_size, hidden_size, dropout, pad_id):
+    def __init__(self, num_layers, n_tokens, emb_size, hidden_size, dropout, pad_id):
         super(CharRNN, self).__init__()
         self.num_layers = num_layers
         self.hidden_size = hidden_size
@@ -77,7 +77,7 @@ def sequences_to_tensors(sequences, token_to_idx):
     sequences = [torch.LongTensor(x) for x in seq_idx]
     return nn.utils.rnn.pad_sequence(sequences, batch_first=True, padding_value=token_to_idx[PAD_TOKEN])
 
-def load_dataset(file_name='data/names'):
+def load_dataset(file_name='../data/transcripts.txt'):
 
     with open(file_name) as file:
         sequences = file.read()[:-1].split('\n')
@@ -112,7 +112,7 @@ def iterate_minibatches(inputs, batchsize, shuffle=False):
             excerpt = slice(start_idx, start_idx + batchsize)
         yield inputs[excerpt]
 
-def train(filename, rnn_type, num_layers, dropout, emb_size, 
+def train(filename, num_layers, dropout, emb_size, 
         hidden_size, num_epochs, batch_size, learning_rate, 
         num_samples, seed_phrase, sample_every, checkpoint_path):
     """ Trains a character-level Recurrent Neural Network in PyTorch.
@@ -134,7 +134,7 @@ def train(filename, rnn_type, num_layers, dropout, emb_size,
     max_length = inputs.size(1)
     
     logging.debug('creating char-level RNN model')
-    model = CharRNN(num_layers=num_layers, rnn_type=rnn_type, 
+    model = CharRNN(num_layers=num_layers,  
                     dropout=dropout, n_tokens=n_tokens,
                     emb_size=emb_size, hidden_size=hidden_size, 
                     pad_id=token_to_idx[PAD_TOKEN])
@@ -262,7 +262,7 @@ def forward(model, inputs, max_length, n_tokens):
     outputs = outputs.contiguous().view(-1, n_tokens)
     return outputs
 
-def generate_sample(model, token_to_idx, idx_to_token, max_length, n_tokens, seed_phrase=SOS_TOKEN):
+def score(model, token_to_idx, idx_to_token, seed_phrase):
     """ Generates samples using seed phrase.
 
     Args:
@@ -284,6 +284,10 @@ def generate_sample(model, token_to_idx, idx_to_token, max_length, n_tokens, see
     except KeyError as e:
         logging.error('unknown token: {}'.format(e))
         exit(0)
+
+
+    print('score:', seed_phrase, file=sys.stderr)
+    print('score:', sequence, file=sys.stderr)
     input_tensor = torch.LongTensor([sequence])
 
     hidden = model.initHidden(1)
@@ -299,21 +303,29 @@ def generate_sample(model, token_to_idx, idx_to_token, max_length, n_tokens, see
         _, hidden = model(input_tensor[:, t], hidden)
     
     # start generating
-    for _ in range(max_length - len(seed_phrase)):
+    score = 0.0
+    for i in range(len(seed_phrase)):
         # sample char from previous time-step
         input_tensor = torch.LongTensor([sequence[-1]])
         if torch.cuda.is_available():
             input_tensor = input_tensor.cuda()
         probs, hidden = model(input_tensor, hidden)
-
         # need to use `exp` as output is `LogSoftmax`
         probs = list(np.exp(np.array(probs.data[0].cpu())))
         # normalize probabilities to ensure sum = 1
         probs /= sum(probs)
+        c = seed_phrase[i]
+        ci = token_to_idx[c]
+        score += probs[ci]
+        print(c, sequence[i], probs[ci],  file=sys.stderr)
+        
         # sample char randomly based on probabilities
-        sequence.append(np.random.choice(len(idx_to_token), p=probs))
+#        sequence.append(np.random.choice(len(idx_to_token), p=probs))
+#        sequence.append(
     # format the string to ignore `pad_token` and `start_token` and return
-    return str(''.join([idx_to_token[ix] for ix in sequence 
-                if idx_to_token[ix] != PAD_TOKEN and idx_to_token[ix] != SOS_TOKEN]))
+#    res = str(''.join([idx_to_token[ix] for ix in sequence 
+#                if idx_to_token[ix] != PAD_TOKEN and idx_to_token[ix] != SOS_TOKEN]))
+    print('SCORE:', score, file=sys.stderr)
+    return score
 
 
