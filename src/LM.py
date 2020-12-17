@@ -1,6 +1,18 @@
+import sys 
+import numpy as np
+from tqdm import tqdm
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+import torch.optim as optim
+
+import logging
+
+SOS_TOKEN = '#'
+PAD_TOKEN = '@'
 
 def glorot_normal_initializer(m):
     """ Applies Glorot Normal initialization to layer parameters.
@@ -113,8 +125,7 @@ def iterate_minibatches(inputs, batchsize, shuffle=False):
         yield inputs[excerpt]
 
 def train(filename, num_layers, dropout, emb_size, 
-        hidden_size, num_epochs, batch_size, learning_rate, 
-        num_samples, seed_phrase, sample_every, checkpoint_path):
+        hidden_size, num_epochs, batch_size, learning_rate, checkpoint_path="./lm.ckp"):
     """ Trains a character-level Recurrent Neural Network in PyTorch.
 
     Args: optional arguments [python train.py --help]
@@ -122,9 +133,9 @@ def train(filename, num_layers, dropout, emb_size,
     logging.info('reading `{}` for character sequences'.format(filename))
     inputs, token_to_idx, idx_to_token = load_dataset(file_name=filename)
 
-    idx_to_token.remove('~')
-    idx_to_token.remove('#')
-    idx_to_token = ['~'] + idx_to_token + ['#']
+    idx_to_token.remove(SOS_TOKEN)
+    idx_to_token.remove(PAD_TOKEN)
+    idx_to_token = [SOS_TOKEN] + idx_to_token + [PAD_TOKEN]
     token_to_idx = {token: idx_to_token.index(token) for token in idx_to_token}
 
     logging.info(idx_to_token)
@@ -177,12 +188,12 @@ def train(filename, num_layers, dropout, emb_size,
         logging.info('Epoch[{}/{}]: train_loss - {:.4f}   val_loss - {:.4f}'.format(epoch, num_epochs, epoch_loss / n_iter, val_loss))
         
         # sample from the model every few epochs
-        if epoch % sample_every == 0:
-            print('Epoch[{}/{}]: train_loss - {:.4f}   val_loss - {:.4f}'.format(epoch, num_epochs, epoch_loss / n_iter, val_loss))
-            for _ in range(num_samples):
-                sample = generate_sample(model, token_to_idx, idx_to_token, 
-                                        max_length, n_tokens, seed_phrase=seed_phrase)
-                logging.debug(sample)
+#        if epoch % sample_every == 0:
+#            print('Epoch[{}/{}]: train_loss - {:.4f}   val_loss - {:.4f}'.format(epoch, num_epochs, epoch_loss / n_iter, val_loss))
+#            for _ in range(num_samples):
+#                sample = generate_sample(model, token_to_idx, idx_to_token, 
+#                                        max_length, n_tokens, seed_phrase="")
+#                logging.debug(sample)
 
         checkpoint = {
             'epoch': epoch + 1,
@@ -193,6 +204,7 @@ def train(filename, num_layers, dropout, emb_size,
         # save checkpoint
         best_model_path = checkpoint_path
         save_ckp(checkpoint, False, checkpoint_path, best_model_path)
+        return model, token_to_idx, idx_to_token
 
 def save_ckp(state, is_best, checkpoint_path, best_model_path):
     """
@@ -209,6 +221,24 @@ def save_ckp(state, is_best, checkpoint_path, best_model_path):
         best_fpath = best_model_path
         # copy that checkpoint file to best path given, best_model_path
         shutil.copyfile(f_path, best_fpath)
+
+def load_ckp(checkpoint_fpath, model, optimiser):
+    """
+    checkpoint_path: path to save checkpoint
+    model: model that we want to load checkpoint parameters into       
+    optimiser: optimiser we defined in previous training
+    """
+    # load check point
+    checkpoint = torch.load(checkpoint_fpath)
+    # initialize state_dict from checkpoint to model
+    model.load_state_dict(checkpoint['state_dict'])
+    # initialize optimiser from checkpoint to optimizer
+    optimiser.load_state_dict(checkpoint['optimizer'])
+    # initialize valid_loss_min from checkpoint to valid_loss_min
+    valid_loss_min = checkpoint['valid_loss_min']
+    # return model, optimiser, epoch value, min validation loss 
+    return model, optimiser, checkpoint['epoch'], valid_loss_min #.item()
+
 
 
 def optimize(model, inputs, max_length, n_tokens, criterion, optimizer):
@@ -328,4 +358,10 @@ def score(model, token_to_idx, idx_to_token, seed_phrase):
     print('SCORE:', score, file=sys.stderr)
     return score
 
+if __name__ == "__main__":
+	logging.root.setLevel(logging.NOTSET)
 
+	model, token_to_idx, idx_to_token = train("../data/transcripts.txt", num_layers=2, dropout=0.05, emb_size=100, hidden_size=200, num_epochs=5, batch_size=10, learning_rate=0.01)
+	s = score(model, token_to_idx, idx_to_token, "десять")
+	print(s)	
+	s = score(model, token_to_idx, idx_to_token, "дстятяь")

@@ -16,6 +16,7 @@ Most of these can be installed using `pip`:
 - librosa 
 - numpy
 - jupyter
+- coloredlogs
 
 # Schedule
 
