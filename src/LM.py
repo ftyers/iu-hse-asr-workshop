@@ -222,6 +222,24 @@ def save_ckp(state, is_best, checkpoint_path, best_model_path):
         # copy that checkpoint file to best path given, best_model_path
         shutil.copyfile(f_path, best_fpath)
 
+def load_ckp(checkpoint_fpath, model, optimiser):
+    """
+    checkpoint_path: path to save checkpoint
+    model: model that we want to load checkpoint parameters into       
+    optimiser: optimiser we defined in previous training
+    """
+    # load check point
+    checkpoint = torch.load(checkpoint_fpath)
+    # initialize state_dict from checkpoint to model
+    model.load_state_dict(checkpoint['state_dict'])
+    # initialize optimiser from checkpoint to optimizer
+    optimiser.load_state_dict(checkpoint['optimizer'])
+    # initialize valid_loss_min from checkpoint to valid_loss_min
+    valid_loss_min = checkpoint['valid_loss_min']
+    # return model, optimiser, epoch value, min validation loss 
+    return model, optimiser, checkpoint['epoch'], valid_loss_min #.item()
+
+
 
 def optimize(model, inputs, max_length, n_tokens, criterion, optimizer):
     model.train()
@@ -346,3 +364,4 @@ if __name__ == "__main__":
 	model, token_to_idx, idx_to_token = train("../data/transcripts.txt", num_layers=2, dropout=0.05, emb_size=100, hidden_size=200, num_epochs=5, batch_size=10, learning_rate=0.01)
 	s = score(model, token_to_idx, idx_to_token, "десять")
 	print(s)	
+	s = score(model, token_to_idx, idx_to_token, "дстятяь")
