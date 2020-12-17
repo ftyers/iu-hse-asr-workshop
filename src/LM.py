@@ -187,8 +187,8 @@ def train(filename, num_layers, dropout, emb_size,
         logging.info('Epoch[{}/{}]: train_loss - {:.4f}   val_loss - {:.4f}'.format(epoch, num_epochs, epoch_loss / n_iter, val_loss))
         
         # sample from the model every few epochs
-        if epoch % sample_every == 0:
-            print('Epoch[{}/{}]: train_loss - {:.4f}   val_loss - {:.4f}'.format(epoch, num_epochs, epoch_loss / n_iter, val_loss))
+#        if epoch % sample_every == 0:
+#            print('Epoch[{}/{}]: train_loss - {:.4f}   val_loss - {:.4f}'.format(epoch, num_epochs, epoch_loss / n_iter, val_loss))
 #            for _ in range(num_samples):
 #                sample = generate_sample(model, token_to_idx, idx_to_token, 
 #                                        max_length, n_tokens, seed_phrase="")
