@@ -1,4 +1,5 @@
 import os
+import copy
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
@@ -7,6 +8,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as data
 import torchaudio
+import torch.nn.functional as F
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from CTCdecoder import CTCDecoder
 
 def extract_feats(path, maxlen=1083):
@@ -103,6 +106,21 @@ def collapse_fn(preds):
             seq+=char
     return seq
 
+class customNLLLoss(nn.Module):
+    def __init__(self, ignore_index=None):
+        super().__init__()
+        self.ignore_index = ignore_index
+        if self.ignore_index:
+            self.loss = nn.NLLLoss(ignore_index=self.ignore_index)
+        else:
+            self.loss = nn.NLLLoss()
+    def forward(self, inp, target):
+        loss = 0
+        for i, char in enumerate(inp):
+            loss+=self.loss(char,target[:,i])
+        return loss        
+
+
 
 class Encoder(nn.Module):
     def __init__(self):
@@ -152,7 +170,6 @@ class Decoder(nn.Module):
     def __init__(self, output_size, hidden_size):
         super().__init__()
         self.embed_layer = nn.Embedding(output_size, 128)
-        #self.lstm_cell = nn.LSTMCell(128, hidden_size)
         self.lstm = nn.LSTM(input_size=128, 
                             hidden_size=hidden_size, 
                             num_layers=1,
