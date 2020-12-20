@@ -96,8 +96,8 @@ def load_dataset(file_name='../data/transcripts.txt'):
         sequences = [SOS_TOKEN + seq.lower() for seq in sequences]
 
     logging.info('number of sequences: {}'.format(len(sequences)))
-    for seq in sequences[::1000]:
-        print(seq[1:])
+#     for seq in sequences[::1000]:
+#         print(seq[1:])
 
     MAX_LENGTH = max(map(len, sequences))
     logging.info('max length: {}'.format(MAX_LENGTH))
@@ -105,7 +105,7 @@ def load_dataset(file_name='../data/transcripts.txt'):
     idx_to_token = list(set([token for seq in sequences for token in seq]))
     idx_to_token.append(PAD_TOKEN)
     n_tokens = len(idx_to_token)
-    logging.info('number of unique tokens: {}'.format(n_tokens))
+    print('number of unique tokens: {}'.format(n_tokens))
 
     token_to_idx = {token: idx_to_token.index(token) for token in idx_to_token}
     assert len(idx_to_token) ==  len(token_to_idx), 'dicts must have same lenghts'
@@ -135,7 +135,7 @@ class LanguageModel:
 
         Args: optional arguments [python train.py --help]
         """
-        logging.info('reading `{}` for character sequences'.format(filename))
+        print('reading `{}` for character sequences'.format(filename))
         inputs, token_to_idx, idx_to_token = load_dataset(file_name=filename)
 
         idx_to_token.remove(SOS_TOKEN)
@@ -149,7 +149,7 @@ class LanguageModel:
         n_tokens = len(idx_to_token)
         max_length = inputs.size(1)
 
-        logging.debug('creating char-level RNN model')
+        print('creating char-level RNN model')
         model = CharRNN(num_layers=num_layers,  
                         dropout=dropout, n_tokens=n_tokens,
                         emb_size=emb_size, hidden_size=hidden_size, 
@@ -170,11 +170,11 @@ class LanguageModel:
         split_index = int(0.5 * inputs.size(0))
         val_tensors, test_tensors = inputs[: split_index], inputs[split_index: ]
         del inputs
-        logging.info('train tensors: {}'.format(train_tensors.size()))
-        logging.info('val tensors: {}'.format(val_tensors.size()))
-        logging.info('test tensors: {}'.format(test_tensors.size()))
+        print('train tensors: {}'.format(train_tensors.size()))
+        print('val tensors: {}'.format(val_tensors.size()))
+        print('test tensors: {}'.format(test_tensors.size()))
 
-        logging.debug('training char-level RNN model')
+        print('training char-level RNN model')
         # loop over epochs
         for epoch in range(1, num_epochs + 1):
             epoch_loss, n_iter = 0.0, 0
@@ -319,7 +319,7 @@ class LanguageModel:
             sequence = [token_to_idx[token] for token in seed_phrase]
         except KeyError as e:
             logging.error('unknown token: {}'.format(e))
-            exit(0)
+            return 0
 
 
         print('score:', seed_phrase, file=sys.stderr)
@@ -361,6 +361,7 @@ class LanguageModel:
         # format the string to ignore `pad_token` and `start_token` and return
     #    res = str(''.join([idx_to_token[ix] for ix in sequence 
     #                if idx_to_token[ix] != PAD_TOKEN and idx_to_token[ix] != SOS_TOKEN]))
+        score = score/len(seed_phrase)
         print('SCORE:', score, file=sys.stderr)
         print()
         return score
