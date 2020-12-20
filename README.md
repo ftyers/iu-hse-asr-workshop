@@ -17,6 +17,7 @@ Most of these can be installed using `pip`:
 - numpy
 - jupyter
 - coloredlogs
+- seaborn
 
 # Schedule
 
