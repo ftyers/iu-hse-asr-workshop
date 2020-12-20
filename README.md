@@ -8,7 +8,7 @@ Sunday the 20th December, 2020
 
 # Preparation / what to install
 
-Most of these can be installed using `pip`:
+These are all python packages.  Most of these can be installed using `pip`.
 
 - pandas
 - torch
@@ -17,6 +17,9 @@ Most of these can be installed using `pip`:
 - numpy
 - jupyter
 - coloredlogs
+- matplotlib
+
+Note: `librosa` is currently incompatible with `python3.9`, so you'll want to set up `python3.8` virtual environment.
 
 # Schedule
 
