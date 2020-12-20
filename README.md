@@ -20,6 +20,8 @@ Most of these can be installed using `pip`:
 
 # Schedule
 
+All times in UTC-5.
+
 * 11:00 - 11:15 Introductions and installation check
 * 11:15 - 11:30 1. [Introduction and overview](https://github.com/ftyers/iu-hse-asr-workshop/raw/main/slides/introduction.pdf)
 * 11:30 - 12:15 2. [Audio processing](notebooks/Audio_Processing.ipynb)(Anurag)
