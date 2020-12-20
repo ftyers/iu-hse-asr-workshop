@@ -21,7 +21,7 @@ Most of these can be installed using `pip`:
 # Schedule
 
 * 11:00 - 11:15 Introductions and installation check
-* 11:15 - 11:30 1. Introduction and overview
+* 11:15 - 11:30 1. [Introduction and overview](https://github.com/ftyers/iu-hse-asr-workshop/raw/main/slides/introduction.pdf)
 * 11:30 - 12:15 2. Audio processing (Anurag)
 * 12:15 - 12:30 Discussion and break
 * 12:30 - 13:15 3. Acoustic models (Nastya)
